@@ -1,0 +1,124 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XO Game</title>
+    <style>
+        .board {
+            width: 300px;
+            height: 300px;
+            border: 1px solid #999999;
+        }
+
+        .cell {
+            display: block;
+            width: 98px;
+            height: 98px;
+            border: 1px solid #999999;
+            float: left;
+            cursor: pointer;
+            font-size: 70px;
+            text-align: center;
+            line-height: 98px;
+        }
+        .cell.fill-x, .cell.fill-o {
+            cursor: not-allowed;
+        }
+
+        .cell.fill-x::after {
+            content: "X";
+            color: blue;
+        }
+
+        .cell.fill-o::after {
+            content: "O";
+            color: red;
+        }
+
+        .cell:hover {
+            background-color: #f1f1f1;
+        }
+        .highlights{
+            background-color: rgb(241, 255, 47) !important;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 id="message">It's X turn</h1>
+    <div class="board">
+        <a class="cell"></a>
+        <a class="cell"></a>
+        <a class="cell"></a>
+        <a class="cell"></a>
+        <a class="cell"></a>
+        <a class="cell"></a>
+        <a class="cell"></a>
+        <a class="cell"></a>
+        <a class="cell"></a>
+    </div>
+    <script>
+        var cells = document.querySelectorAll(".cell")
+        var turn = "x"
+        var isend = false;
+        var winningConditions = [
+            [0,1,2],
+            [3,4,5],
+            [6,7,8],
+            [0,3,6],
+            [1,4,7],
+            [2,5,8],
+            [0,4,8],
+            [2,4,6]
+        ]
+        var message = document.getElementById("message");
+        function winCheck () {
+            var turnClass = "fill-" + turn;
+            var isWon = winningConditions.some(function(winningCondition) {
+                var winning = winningCondition.every(function(index) {
+                    return cells[index].classList.contains(turnClass);
+                })  
+                if(winning) {
+                    for(var j=0; j<winningCondition.length; j++) {
+                        cells[winningCondition[j]].classList.add("highlights");
+                    }
+                }
+                return winning;
+            })
+            return isWon;
+        }
+        function checkDraw() {
+            var filledcount = 0;
+            for (var i = 0; i < cells.length; i++) {
+                var cell = cells[i];
+                if (cell.classList.contains("fill-x") || cell.classList.contains("fill-o")) {
+                    filledcount++;
+                }
+            }
+            if (filledcount === 9) return true;
+                else return false;
+        }
+        for (var i = 0; i < cells.length; i++) {
+            cells[i].addEventListener("click", function (e) {
+                if(isend) return;
+                var cell = e.target;
+                cell.classList.add("fill-" + turn)
+                if(winCheck()){
+                    message.innerHTML = turn.toUpperCase() + " Won the game!";
+                    isend = true;
+                }
+                else if (checkDraw()) {
+                    message.innerHTML = "Game is Draw!";
+                    isend = true;
+                } else {
+                    turn = turn === "x" ? "o" : "x";
+                    message.innerHTML = "It's " + turn.toUpperCase() + " turn";
+                }
+            }, { once: true })
+        }
+    </script>
+</body>
+
+</html>
